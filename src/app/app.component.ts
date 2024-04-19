@@ -2,6 +2,7 @@ import { Component, AfterViewInit, OnInit } from '@angular/core';
 import * as L from 'leaflet';
 import { HttpClient } from '@angular/common/http';
 import Pusher from 'pusher-js';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -24,9 +25,9 @@ export class AppComponent implements AfterViewInit, OnInit {
   }
 
   ngOnInit(): void {
-    const pusher = new Pusher('5ad67e7b101ae5244ad7', {
-      authEndpoint: 'http://localhost:3000/pusher/auth',
-      cluster: 'ap2',
+    const pusher = new Pusher(environment.PUSHER_KEY, {
+      authEndpoint: `${environment.API_URL}/pusher/auth`,
+      cluster: environment.PUSHER_CLUSTER,
     });
 
     const presenceChannel = pusher.subscribe('presence-channel');
@@ -89,7 +90,7 @@ export class AppComponent implements AfterViewInit, OnInit {
           this.locations[this.current_user] = location;
 
           this.http
-            .post('http://localhost:3000/update-location', {
+            .post(`${environment.API_URL}/update-location`, {
               username: this.current_user,
               location: location,
             })
@@ -113,9 +114,10 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   addMarker(location: { lat: any; lng: any }, label: string) {
     // Define custom marker icon
-    L.marker([location.lat, location.lng], { icon: this.marker() }).addTo(
-      this.map
-    ).bindPopup(label).openPopup();
+    L.marker([location.lat, location.lng], { icon: this.marker() })
+      .addTo(this.map)
+      .bindPopup(label)
+      .openPopup();
   }
 
   updateMarkers() {
